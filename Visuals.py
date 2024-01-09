@@ -1,25 +1,16 @@
 import pygame as pg
-import Reciever 
 import random
 
 screen_w = 900
 screen_h = 720
-
-min_power = 120
-win_speed = -100
 
 screen = pg.display.set_mode((screen_w,screen_h))
 pg.display.set_caption("Tennis")
 
 player_run = []
 for i in range(2):
-    img = pg.image.load(f"player run{i}")
+    img = pg.image.load(f"Player run{i}")
     player_run.append(img)
-
-opponent_run = []
-for i in range(2):
-    img = pg.image.load(f"opponent run{i}")
-    opponent_run.append(img)
 
 clock = pg.time.Clock()
 running = True
@@ -48,10 +39,8 @@ class Bro:
         self.opponent = opponent
     
     def draw(b):
-        if opponent:
-            screen.blit(opponent_run[1], (b.x,b.y))
-        elif not opponent:
-            screen.blit(player_run[1], (b.x,b.y))
+        rect = (b.x, b.y, b.w, b.h)
+        pg.draw.rect(screen, (0,0,0), rect)
 
     def move(self, ball):
         if opponent and ball.vy < 0:
@@ -61,10 +50,10 @@ class Bro:
 
 
 ball = Ball(screen_w/2,screen_h/2,15)
-opponent = Bro(screen_w/2,100,25,50,True)
-player = Bro(screen_w/2,400,50,100,False)
+opponent = Bro(screen_w/2,260,25,50,True)
+player = Bro(screen_w/2,550,50,100,False)
 
-background = pg.transform.scale(pg.image.load("tennisbane.png"),(screen_w,screen_h))
+background = pg.transform.scale(pg.image.load("Tennisbane.png"),(screen_w,screen_h))
 
 while running:
 
@@ -80,29 +69,9 @@ while running:
 
     screen.blit(background,(0,0))
 
-    #Movement
-    data = Reciever.read()
-    if data != None:
-        x,y,z = data
-        snit = (x + y + z)/3
-        if snit > min_power:
-            print("slay")
-            if (player.y - ball.y) < 25 and (player.y - ball.y) > -50:
-                if ball.vy > 0:
-                    ball.vy *= -snit/100
-                    ball.vx *= random.random() * 2 - 1
-    
-    if (ball.y - opponent.y) < 10 and ball.vy > win_speed:
-        ball.vy *= -1
-        ball.vx *= (random.random() * 2 - 1) * 25
-
-
     ball.draw()
-    ball.move()
     opponent.draw()
-    opponent.move(ball)
     player.draw()
-    player.move(ball)
 
     clock.tick(60)
     pg.display.flip()
