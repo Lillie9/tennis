@@ -13,13 +13,23 @@ pg.display.set_caption("Tennis")
 
 player_run = []
 for i in range(2):
-    img = pg.image.load(f"player run{i}")
+    img = pg.image.load(f"player run{i}.png")
     player_run.append(img)
+
+player_flip = []
+for i in range(2):
+    flip_img = pg.transform.flip((pg.image.load(f"player run{i}.png")),True, False)
+    player_flip.append(flip_img)
 
 opponent_run = []
 for i in range(2):
-    img = pg.image.load(f"opponent run{i}")
+    img = pg.image.load(f"opponent run{i}.png")
     opponent_run.append(img)
+
+player_flip = []
+for i in range(2):
+    flip_img = pg.transform.flip((pg.image.load(f"opponent run{i}.png")),True, False)
+    player_flip.append(flip_img)
 
 clock = pg.time.Clock()
 running = True
@@ -40,19 +50,26 @@ class Ball:
         b.y += b.vy/100
 
 class Bro:
-    def __init__(self,x,y,w,h,opponent):
+    def __init__(self,x,y,w,h,opponent, run, flip):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
         self.opponent = opponent
+        self.run = run
+        self.flip = flip
     
     def draw(b):
-        if opponent:
-            screen.blit(opponent_run[1], (b.x,b.y))
-        elif not opponent:
-            screen.blit(player_run[1], (b.x,b.y))
-
+        screen.blit(b.run[1], (b.x,b.y))
+        r = int(tick/3) % 2
+        if opponent and ball.vy < 0:
+            screen.blit(b.run[r], (b.x,b.y))
+        if not opponent:
+            if b.x > 0:
+                screen.blit(b.run[r], (b.x,b.y))
+            elif b.x < 0:
+                screen.blit(b.flip[r], (b.x,b.y))
+    
     def move(self, ball):
         if opponent and ball.vy < 0:
             self.x += (ball.x - self.x)/100
@@ -61,8 +78,8 @@ class Bro:
 
 
 ball = Ball(screen_w/2,screen_h/2,15)
-opponent = Bro(screen_w/2,100,25,50,True)
-player = Bro(screen_w/2,400,50,100,False)
+opponent = Bro(screen_w/2,260,25,50,True, opponent_run, opponent_flip)
+player = Bro(screen_w/2,550,50,100,False, player_run, player_flip)
 
 background = pg.transform.scale(pg.image.load("tennisbane.png"),(screen_w,screen_h))
 
