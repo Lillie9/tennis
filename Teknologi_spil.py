@@ -5,6 +5,8 @@ import random
 screen_w = 900
 screen_h = 720
 
+tick = 0
+
 min_power = 120
 win_speed = -100
 
@@ -26,10 +28,10 @@ for i in range(2):
     img = pg.image.load(f"opponent run{i}.png")
     opponent_run.append(img)
 
-player_flip = []
+opponent_flip = []
 for i in range(2):
     flip_img = pg.transform.flip((pg.image.load(f"opponent run{i}.png")),True, False)
-    player_flip.append(flip_img)
+    opponent_flip.append(flip_img)
 
 clock = pg.time.Clock()
 running = True
@@ -122,6 +124,7 @@ while running:
     player.move(ball)
 
     clock.tick(60)
+    tick += 1
     pg.display.flip()
 
 pg.quit()
