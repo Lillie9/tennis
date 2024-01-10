@@ -61,20 +61,21 @@ class Bro:
         self.run = run
     
     def draw(self, ball):
-        screen.blit(self.run[1], (self.x,self.y))
         r = int(tick/3) % 2
         if opponent and ball.vy < 0:
             if ball.vx > 0:
                 screen.blit(self.run[r], (self.x,self.y))
-            elif ball.vx < 0:
+            else:
                 screen.blit(pg.transform.flip(self.run[r], True, False), (self.x,self.y))
             
-        if not opponent and ball.vy > 0:
-            print("vx: ", ball.vx)
+        elif not opponent and ball.vy > 0:
             if ball.vx > 0:
                 screen.blit(self.run[r], (self.x,self.y))
-            elif ball.vx < 0:
+            else:
                 screen.blit(pg.transform.flip(self.run[r], True, False), (self.x,self.y))
+
+        else:
+            screen.blit(self.run[1], (self.x,self.y))
     
     def move(self, ball):
         if opponent and ball.vy < 0:
