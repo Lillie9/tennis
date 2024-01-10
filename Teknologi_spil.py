@@ -2,6 +2,8 @@ import pygame as pg
 import Reciever 
 import random
 
+pg.font.init()
+
 screen_w = 900
 screen_h = 720
 
@@ -16,7 +18,7 @@ screen = pg.display.set_mode((screen_w,screen_h))
 pg.display.set_caption("Tennis")
 
 # https://fonts.google.com/specimen/Press+Start+2P/about
-font = pg.font.Font("fonts/PressStart2P-Regular.ttf", 20)
+font = pg.font.SysFont("bahnschrift", 100)
 
 player_size = 32 * 4
 opponent_size = 32 * 3
@@ -89,9 +91,19 @@ background = pg.transform.scale(pg.image.load("tennisbane.png"),(screen_w,screen
 
 #Calibrating
 while callibration_tick <= 120:
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            running = False
+        elif event.type  == pg.KEYDOWN:
+            if event.key == pg.K_ESCAPE:
+                running = False
+        elif event.type == pg.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = event.pos
+            print("mouse:", mouse_x, mouse_y)
+    
     screen.blit(background,(0,0))
-    text = font.render(f"0000", True, (255,255,255))
-    screen.blit(text, (10,560))
+    text = font.render("Callibrating", True, (255,255,255))
+    screen.blit(text, (screen_w/2,screen_h/2))
 
     data = Reciever.read()
     if data != None:

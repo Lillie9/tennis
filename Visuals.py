@@ -1,16 +1,23 @@
 import pygame as pg
+import Reciever 
 import random
+
+pg.font.init()
 
 screen_w = 900
 screen_h = 720
 
+tick = 0
+callibration_tick = 0
+
+still_snit = 0
+min_power = still_snit * 1.25
+win_speed = -200
+
 screen = pg.display.set_mode((screen_w,screen_h))
 pg.display.set_caption("Tennis")
 
-player_run = []
-for i in range(2):
-    img = pg.image.load(f"Player run{i}")
-    player_run.append(img)
+font = pg.font.SysFont("bahnschrift", 100)
 
 clock = pg.time.Clock()
 running = True
@@ -54,6 +61,36 @@ opponent = Bro(screen_w/2,260,25,50,True)
 player = Bro(screen_w/2,550,50,100,False)
 
 background = pg.transform.scale(pg.image.load("Tennisbane.png"),(screen_w,screen_h))
+
+#Calibrating
+while callibration_tick <= 120:
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            running = False
+        elif event.type  == pg.KEYDOWN:
+            if event.key == pg.K_ESCAPE:
+                running = False
+        elif event.type == pg.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = event.pos
+            print("mouse:", mouse_x, mouse_y)
+    
+    text = font.render("Callibrating", True, (255,255,255))
+    screen.blit(text, (233,255))
+    print("virk pls")
+
+    data = Reciever.read()
+    if data != None:
+        x,y,z = data
+        snit = (x + y + z)/3
+        while tick <= 120: #Calibrating
+            still_snit += snit
+        
+        if tick == 120:
+            still_snit = int(still_snit/120)
+            print(still_snit)
+    
+    clock.tick(60)
+    callibration_tick += 1
 
 while running:
 
