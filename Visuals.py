@@ -17,7 +17,7 @@ win_speed = -200
 screen = pg.display.set_mode((screen_w,screen_h))
 pg.display.set_caption("Tennis")
 
-font = pg.font.SysFont("bahnschrift", 100)
+font = pg.font.SysFont(None, 50)
 
 clock = pg.time.Clock()
 running = True
@@ -74,10 +74,12 @@ while callibration_tick <= 120:
             mouse_x, mouse_y = event.pos
             print("mouse:", mouse_x, mouse_y)
     
-    text = font.render("Callibrating", True, (255,255,255))
-    screen.blit(text, (233,255))
-    print("virk pls")
+    screen.blit(background,(0,0))
+    text = font.render("Callibrating", True, (0,0,50))
+    screen.blit(text, (0,0))
 
+    pg.display.flip()
+    
     data = Reciever.read()
     if data != None:
         x,y,z = data

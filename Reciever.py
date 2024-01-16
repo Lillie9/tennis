@@ -25,7 +25,6 @@ class ReadLine:
 ser = serial.Serial('COM6', 9600)
 ser.write(b"he\n")
 rl = ReadLine(ser)
-
 def read():
     data = None
     while ser.in_waiting > 4:    

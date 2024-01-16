@@ -8,17 +8,17 @@ screen_w = 900
 screen_h = 720
 
 tick = 0
-callibration_tick = 0
+calibration_tick = 0
 
 still_snit = 0
-min_power = still_snit * 1.25
 win_speed = -200
 
 screen = pg.display.set_mode((screen_w,screen_h))
 pg.display.set_caption("Tennis")
 
 # https://fonts.google.com/specimen/Press+Start+2P/about
-font = pg.font.SysFont("bahnschrift", 100)
+text_size = 100
+font = pg.font.SysFont("bahnschrift", text_size)
 
 player_size = 32 * 4
 opponent_size = 32 * 3
@@ -61,24 +61,27 @@ class Bro:
         self.run = run
     
     def draw(self, ball):
-        screen.blit(self.run[1], (self.x,self.y))
         r = int(tick/3) % 2
         if opponent and ball.vy < 0:
             if ball.vx > 0:
                 screen.blit(self.run[r], (self.x,self.y))
-            elif ball.vx < 0:
+            else:
                 screen.blit(pg.transform.flip(self.run[r], True, False), (self.x,self.y))
+        elif opponent and ball.vy > 0:
+            screen.blit(self.run[1], (self.x,self.y))
             
         if not opponent and ball.vy > 0:
-            print("vx: ", ball.vx)
-            if ball.vx > 0:
+            if ball.vx < 0:
                 screen.blit(self.run[r], (self.x,self.y))
-            elif ball.vx < 0:
+            else:
                 screen.blit(pg.transform.flip(self.run[r], True, False), (self.x,self.y))
+        elif not opponent and ball.vy < 0:
+            screen.blit(self.run[1], (self.x,self.y))
     
     def move(self, ball):
         if opponent and ball.vy < 0:
             self.x += (ball.x - self.x)/100
+        
         if not opponent and ball.vy > 0:
             self.x += (ball.x - self.x)/100
 
@@ -90,7 +93,7 @@ player = Bro(screen_w/2,525,False, player_run)
 background = pg.transform.scale(pg.image.load("tennisbane.png"),(screen_w,screen_h))
 
 #Calibrating
-while callibration_tick <= 120:
+while calibration_tick <= 120:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False
@@ -102,22 +105,28 @@ while callibration_tick <= 120:
             print("mouse:", mouse_x, mouse_y)
     
     screen.blit(background,(0,0))
-    text = font.render("Callibrating", True, (255,255,255))
-    screen.blit(text, (screen_w/2,screen_h/2))
+    calibrating = font.render("Calibrating", True, (0,0,0))
+    screen.blit(calibrating, (screen_w/2-250,screen_h/2-100))
+    wait = font.render("Please wait", True, (0,0,0))
+    screen.blit(wait, (screen_w/2-250,screen_h/2))
 
     data = Reciever.read()
     if data != None:
         x,y,z = data
         snit = (x + y + z)/3
-        while tick <= 120: #Calibrating
-            still_snit += snit
+        still_snit += snit
+        print(data)
+    else:
+        continue
         
-        if tick == 120:
-            still_snit = int(still_snit/120)
-            print(still_snit)
     
     clock.tick(60)
-    callibration_tick += 1
+    calibration_tick += 1
+    pg.display.flip()
+
+still_snit = int(still_snit/120)
+print(still_snit)
+min_power = still_snit * 1.15
 
 #Game loop
 while running:
@@ -139,13 +148,12 @@ while running:
     if data != None:
         x,y,z = data
         snit = (x + y + z)/3
-        print("no slay: ", snit)
         if snit > min_power:
-            print("slay: ", snit)
+            print("slay")
             if (player.y - ball.y) < 25 and (player.y - ball.y) > -50:
                 if ball.vy > 0:
                     ball.vy *= -snit/100
-                    ball.vx *= (random.random() * 2 - 1) * 5
+                    ball.vx *= (random.random() * 2 - 1) * 2
     
     if (ball.y - opponent.y) < 10 and ball.vy > win_speed:
         ball.vy *= -1
