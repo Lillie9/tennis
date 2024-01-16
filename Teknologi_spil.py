@@ -23,6 +23,10 @@ font = pg.font.SysFont("bahnschrift", text_size)
 player_size = 32 * 4
 opponent_size = 32 * 3
 
+score = False
+player_score = 0
+opponent_score = 0
+
 player_run = []
 for i in range(2):
     img = pg.image.load(f"player run{i}.png")
@@ -65,24 +69,18 @@ class Bro:
         if self.opponent and ball.vy <= 0:
             if ball.vx > 0:
                 screen.blit(self.run[r], (self.x,self.y))
-                print("opponent and ball.vy < 0")
             else:
                 screen.blit(pg.transform.flip(self.run[r], True, False), (self.x,self.y))
-                print(" opponent and ball.vy < 0 and ball.vx !< 0")
         elif self.opponent and ball.vy > 0:
             screen.blit(self.run[1], (self.x,self.y))
-            print("opponent and ball.vy > 0")
             
         if not self.opponent and ball.vy > 0:
             if ball.vx < 0:
                 screen.blit(self.run[r], (self.x,self.y))
-                print("not opponent and ball.vy > 0")
             else:
                 screen.blit(pg.transform.flip(self.run[r], True, False), (self.x,self.y))
-                print("not opponent and ball.vy > 0 and ball.vx !< 0")
         elif not self.opponent and ball.vy < 0:
             screen.blit(self.run[1], (self.x,self.y))
-            print("not opponent and ball.vy < 0")
     
     def move(self, ball):
         if self.opponent and ball.vy < 0:
@@ -91,6 +89,19 @@ class Bro:
         if not self.opponent and ball.vy > 0:
             self.x += (ball.x - self.x)/100
 
+def score(ball,opponent_score, player_score): #Nulstiller bold men ændrer ikke scorer
+    if ball.y < 350:
+        player_score += 1
+    
+    if ball.y > 350:
+        opponent_score += 1
+    
+    ball.x = screen_w/2
+    ball.y = screen_h/2
+    ball.vx = 0.5
+    ball.vy = 80
+
+        
 
 ball = Ball(screen_w/2,screen_h/2,15)
 opponent = Bro(screen_w/2,210,True, opponent_run)
@@ -163,6 +174,14 @@ while running:
         ball.vy *= -1
         ball.vx *= (random.random() * 2 - 1) * 25
 
+    #Check win
+    if ball.y < 210 or ball.y > 525:
+        score(ball,opponent_score,player_score)
+        print("GOOOOOOOAAAALLLL")
+    print("player", player_score)
+    print("opponent", opponent_score)
+
+        
 
     opponent.draw(ball)
     opponent.move(ball)
