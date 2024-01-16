@@ -61,28 +61,34 @@ class Bro:
         self.run = run
     
     def draw(self, ball):
-        r = int(tick/3) % 2
-        if opponent and ball.vy < 0:
+        r = int(tick/6) % 2
+        if self.opponent and ball.vy <= 0:
             if ball.vx > 0:
                 screen.blit(self.run[r], (self.x,self.y))
+                print("opponent and ball.vy < 0")
             else:
                 screen.blit(pg.transform.flip(self.run[r], True, False), (self.x,self.y))
-        elif opponent and ball.vy > 0:
+                print(" opponent and ball.vy < 0 and ball.vx !< 0")
+        elif self.opponent and ball.vy > 0:
             screen.blit(self.run[1], (self.x,self.y))
+            print("opponent and ball.vy > 0")
             
-        if not opponent and ball.vy > 0:
+        if not self.opponent and ball.vy > 0:
             if ball.vx < 0:
                 screen.blit(self.run[r], (self.x,self.y))
+                print("not opponent and ball.vy > 0")
             else:
                 screen.blit(pg.transform.flip(self.run[r], True, False), (self.x,self.y))
-        elif not opponent and ball.vy < 0:
+                print("not opponent and ball.vy > 0 and ball.vx !< 0")
+        elif not self.opponent and ball.vy < 0:
             screen.blit(self.run[1], (self.x,self.y))
+            print("not opponent and ball.vy < 0")
     
     def move(self, ball):
-        if opponent and ball.vy < 0:
+        if self.opponent and ball.vy < 0:
             self.x += (ball.x - self.x)/100
         
-        if not opponent and ball.vy > 0:
+        if not self.opponent and ball.vy > 0:
             self.x += (ball.x - self.x)/100
 
 
@@ -115,7 +121,6 @@ while calibration_tick <= 120:
         x,y,z = data
         snit = (x + y + z)/3
         still_snit += snit
-        print(data)
     else:
         continue
         
@@ -125,7 +130,6 @@ while calibration_tick <= 120:
     pg.display.flip()
 
 still_snit = int(still_snit/120)
-print(still_snit)
 min_power = still_snit * 1.15
 
 #Game loop
@@ -160,10 +164,10 @@ while running:
         ball.vx *= (random.random() * 2 - 1) * 25
 
 
-    ball.draw()
-    ball.move()
     opponent.draw(ball)
     opponent.move(ball)
+    ball.draw()
+    ball.move()
     player.draw(ball)
     player.move(ball)
 
