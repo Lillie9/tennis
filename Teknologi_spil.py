@@ -1,8 +1,6 @@
 import pygame as pg
 import Reciever 
 import random
-import math
-
 
 pg.font.init()
 
@@ -13,7 +11,7 @@ tick = 0
 calibration_tick = 0
 
 still_snit = 0
-win_speed = -70
+win_speed = -200
 
 screen = pg.display.set_mode((screen_w,screen_h))
 pg.display.set_caption("Tennis")
@@ -50,6 +48,11 @@ for i in range(6):
     img = pg.transform.scale(img,(ball_size, ball_size))
     ball_spin.append(img)
 
+player_slay = pg.image.load("player_slay.png")
+player_slay = pg.transform.scale(player_slay,(player_size, player_size))
+opponent_slay = pg.image.load("opponent_slay.png")
+opponent_slay = pg.transform.scale(opponent_slay,(player_size, player_size))
+
 clock = pg.time.Clock()
 running = True
 
@@ -76,14 +79,19 @@ class Ball:
         b.vy = 80
 
 class Bro:
-    def __init__(self,x,y,opponent, run):
+    def __init__(self,x,y,opponent, run, slaying, slay_picture):
         self.x = x
         self.y = y
         self.opponent = opponent
         self.run = run
         self.score = 0
+        self.slaying = False
+        self.slay_picture = slay_picture
     
     def draw(self, ball):
+        if self.slaying == True:
+            screen.blit(self.slay_picture, (self.x,self.y))
+            return
         r = int(tick/6) % 2
         if self.opponent and ball.vy <= 0:
             if ball.vx < 0:
@@ -100,6 +108,8 @@ class Bro:
                 screen.blit(pg.transform.flip(self.run[r], True, False), (self.x,self.y))
         elif not self.opponent and ball.vy < 0:
             screen.blit(self.run[1], (self.x,self.y))
+
+        
     
     def move(self, ball):
         if self.opponent and ball.vy < 0:
@@ -123,8 +133,8 @@ def draw_score(screen, playername, playerscore,x,y):
 
 
 ball = Ball(screen_w/2,screen_h/2,15)
-opponent = Bro(screen_w/2,210,True, opponent_run)
-player = Bro(screen_w/2,525,False, player_run)
+opponent = Bro(screen_w/2,210,True, opponent_run, False, opponent_slay)
+player = Bro(screen_w/2,525,False, player_run, False, player_slay)
 
 background = pg.transform.scale(pg.image.load("tennisbane.png"),(screen_w,screen_h))
 keyboard_slay = False
@@ -191,22 +201,27 @@ while running:
         snit = (x + y + z)/3
         if snit > min_power or keyboard_slay :
             print("slay")
+            player.slaying = True
             if (player.y - ball.y) < 25 and (player.y - ball.y) > -50:
                 if ball.vy > 0:
                     ball.vy *= -snit/100
                     vx_1 = int((ball.x - 208)/(696-272)*ball.vy)
                     vx_2 = int((ball.x - 685)/(696-272)*ball.vy)
-                    print(vx_1, vx_2 )
+                    print(vx_1, vx_2)
   
                     ball.vx = random.randrange(vx_1,vx_2)
+        else:
+            player.slaying = False
     
         
         if (ball.y - opponent.y) < 10 and ball.vy > win_speed:
             vx_1 = int((ball.x - 208)/(696-272)*ball.vy)
             vx_2 = int((ball.x - 685)/(696-272)*ball.vy)
-            print(vx_1, vx_2)
             ball.vy *= -1
             ball.vx = random.randrange(vx_1,vx_2)
+            opponent.slaying = True
+        else:
+            opponent.slaying = False
 
     #Check win    
     if (ball.y - player.y) > 75:
@@ -217,9 +232,6 @@ while running:
         player.score += 1
         ball.reset()
         
-        
-    #print("player", player.score)  
-    #print("opponent", opponent.score)
     playername = f"Player"
     playerscore = f"{player.score}"
     draw_score(screen, playername, playerscore,250,30)
@@ -227,9 +239,6 @@ while running:
     playerscore = f"{opponent.score}"
     draw_score(screen, playername, playerscore,487,30)
     
-
-        
-
     opponent.draw(ball)
     opponent.move(ball)
     ball.draw()
