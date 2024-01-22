@@ -33,8 +33,6 @@ ball_size = 90
 
 score = False
 
-playing = False
-
 #Colours
 dark_brown = (185,122,87)
 light_brown = (239,228,176)
@@ -187,7 +185,6 @@ while running == False:
                 quit()
 
     clock.tick(60)
-    calibration_tick += 1
     pg.display.flip()
 
 #Calibrating

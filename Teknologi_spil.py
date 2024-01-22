@@ -10,6 +10,9 @@ screen_h = 720
 tick = 0
 calibration_tick = 0
 
+mouse_x = 0
+mouse_y = 0
+
 still_snit = 0
 win_speed = -200
 
@@ -20,7 +23,8 @@ pg.display.set_caption("Tennis")
 text_size = 100
 score_size = 50
 font = pg.font.SysFont("bahnschrift", text_size)
-score_font = pg.font.SysFont("bahnschrift",score_size )
+score_font = pg.font.SysFont("bahnschrift",score_size)
+play_font = pg.font.SysFont("bahnschrift",80)
 
 player_size = 32 * 4
 opponent_size = 32 * 3
@@ -29,6 +33,9 @@ ball_size = 90
 
 score = False
 
+#Colours
+dark_brown = (185,122,87)
+light_brown = (239,228,176)
 
 player_run = []
 for i in range(2):
@@ -54,7 +61,7 @@ opponent_slay = pg.image.load("opponent_slay.png")
 opponent_slay = pg.transform.scale(opponent_slay,(player_size, player_size))
 
 clock = pg.time.Clock()
-running = True
+running = False
 
 class Ball:
     def __init__(self,x,y,r):
@@ -109,8 +116,6 @@ class Bro:
         elif not self.opponent and ball.vy < 0:
             screen.blit(self.run[1], (self.x,self.y))
 
-        
-    
     def move(self, ball):
         if self.opponent and ball.vy < 0:
             if ball.vx > 0:
@@ -138,6 +143,48 @@ player = Bro(screen_w/2,525,False, player_run, False, player_slay)
 
 background = pg.transform.scale(pg.image.load("tennisbane.png"),(screen_w,screen_h))
 keyboard_slay = False
+
+#Start screen
+while running == False:
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            quit()
+        
+        elif event.type == pg.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = event.pos
+            print("mouse:", mouse_x, mouse_y)
+
+    
+    screen.fill((210,180,140))
+
+    #Tennis court picture
+    pg.draw.rect(screen, dark_brown, (50,50,screen_w - 100,420)) #Outer rim
+    picture = pg.transform.scale(background,(screen_w - 120,400))
+    screen.blit(picture, (60,60))
+
+    #Play button
+    pg.draw.rect(screen, dark_brown, (170,540,200,110)) #Outer play button
+    pg.draw.rect(screen, light_brown, (175,545,190,100)) #Inner play button
+    play_button = play_font.render("Play", True, dark_brown) #Play button text
+    screen.blit(play_button, (190,555))
+
+    if 170 <= mouse_x <= 170+200:
+        if 540 <= mouse_y <= 540+110:
+            running = True
+
+    #Quit button
+    pg.draw.rect(screen, dark_brown, (500,540,200,110)) #Outer play button
+    pg.draw.rect(screen, light_brown, (505,545,190,100)) #Inner play button
+    play_button = play_font.render("Quit", True, dark_brown) #Play button text
+    screen.blit(play_button, (520,555))
+    
+    if 500 <= mouse_x <= 500+200:
+            if 540 <= mouse_y <= 540+110:
+                quit()
+
+    clock.tick(60)
+    pg.display.flip()
+
 #Calibrating
 while calibration_tick <= 120:
     for event in pg.event.get():
