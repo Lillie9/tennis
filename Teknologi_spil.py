@@ -63,11 +63,12 @@ opponent_slay = pg.transform.scale(opponent_slay,(player_size, player_size))
 clock = pg.time.Clock()
 running = False
 
+højde = (696-272)
+
 class Ball:
-    def __init__(self,x,y,r):
+    def __init__(self,x,y):
         self.x = x
         self.y = y
-        self.r = r
         self.vx = 0.5
         self.vy = 80
 
@@ -97,11 +98,17 @@ class Bro:
     
     def draw(self, ball):
         if self.slaying == True:
-            screen.blit(self.slay_picture, (self.x,self.y))
+            if ball.vy > 0:
+                if ball.vx > 0:
+                    screen.blit(self.slay_picture, (self.x,self.y))
+                else:
+                    screen.blit(pg.transform.flip(self.slay_picture, True, False), (self.x,self.y))
+            else:
+                screen.blit(self.slay_picture, (self.x,self.y))
             return
         r = int(tick/6) % 2
         if self.opponent and ball.vy <= 0:
-            if ball.vx < 0:
+            if ball.vx > 0:
                 screen.blit(self.run[r], (self.x,self.y))
             else:
                 screen.blit(pg.transform.flip(self.run[r], True, False), (self.x,self.y))
@@ -118,16 +125,16 @@ class Bro:
 
     def move(self, ball):
         if self.opponent and ball.vy < 0:
-            if ball.vx > 0:
-                self.x += (ball.x - self.x)/100
+            if ball.vx < 0:
+                self.x += (ball.x - self.x)/25
             else:
-                self.x += (ball.x - (self.x + player_size))/100
+                self.x += (ball.x - (self.x + player_size - ball_size/2))/25
         
         if not self.opponent and ball.vy > 0:
             if ball.vx < 0:
-                self.x += (ball.x - self.x)/100
+                self.x += (ball.x - self.x)/25
             else:
-                self.x += (ball.x - (self.x + player_size))/100
+                self.x += (ball.x - (self.x + player_size - ball_size/2))/25
 
 def draw_score(screen, playername, playerscore,x,y):   
     rendered_player = score_font.render(playername, True, (255,255,255))
@@ -137,7 +144,7 @@ def draw_score(screen, playername, playerscore,x,y):
     screen.blit(rendered_player_score, (x+text_width/2-score_font.size(playerscore)[0]/2,10+y+text_height))
 
 
-ball = Ball(screen_w/2,screen_h/2,15)
+ball = Ball(screen_w/2,screen_h/2)
 opponent = Bro(screen_w/2,210,True, opponent_run, False, opponent_slay)
 player = Bro(screen_w/2,525,False, player_run, False, player_slay)
 
@@ -247,29 +254,38 @@ while running:
         x,y,z = data
         snit = (x + y + z)/3
         if snit > min_power or keyboard_slay :
+            snit = 100
             print("slay")
             player.slaying = True
-            if (player.y - ball.y) < 25 and (player.y - ball.y) > -50:
+            if -50 < (player.y - ball.y) < 50:
                 if ball.vy > 0:
                     ball.vy *= -snit/100
-                    vx_1 = int((ball.x - 208)/(696-272)*ball.vy)
-                    vx_2 = int((ball.x - 685)/(696-272)*ball.vy)
-                    print(vx_1, vx_2)
-  
-                    ball.vx = random.randrange(vx_1,vx_2)
+                    vx_1 = int((ball.x - 208)/højde*ball.vy)
+                    vx_2 = int((ball.x - 685)/højde*ball.vy)
+                    if ball.x < 0:
+                        vx_1 *= -1
+                        vx_2 *= -1
+
+                ball.vx = random.randrange(vx_1,vx_2)
         else:
             player.slaying = False
     
         
-        if (ball.y - opponent.y) < 10 and ball.vy > win_speed:
-            vx_1 = int((ball.x - 208)/(696-272)*ball.vy)
-            vx_2 = int((ball.x - 685)/(696-272)*ball.vy)
-            ball.vy *= -1
+    if (ball.y - opponent.y) < 10 and ball.vy > win_speed:
+        vx_1 = int((ball.x - 90)/højde*ball.vy)
+        vx_2 = int((ball.x - 800)/højde*ball.vy)
+        ball.vy *= -1
+        if ball.x < 0:
+                vx_1 *= -1
+                vx_2 *= -1
+        ball.vx = random.randrange(vx_1,vx_2)
+        while -5 < ball.vx < 5:
             ball.vx = random.randrange(vx_1,vx_2)
-            opponent.slaying = True
-        else:
-            opponent.slaying = False
 
+        opponent.slaying = True
+    else:
+        opponent.slaying = False
+            
     #Check win    
     if (ball.y - player.y) > 75:
         opponent.score += 1
@@ -278,6 +294,16 @@ while running:
     if (ball.y - opponent.y) < -75:
         player.score += 1
         ball.reset()
+    
+
+    def winning():
+        if player.score > 5:
+            win_text = font.render("You Won", True, (0,0,0))
+            screen.blit(win_text, (screen_w/2-180,screen_h/2))
+            ball.vy = 0
+            ball.vx = 0
+
+
         
     playername = f"Player"
     playerscore = f"{player.score}"
@@ -292,6 +318,7 @@ while running:
     ball.move()
     player.draw(ball)
     player.move(ball)
+    winning()
 
     clock.tick(60)
     tick += 1

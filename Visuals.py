@@ -121,9 +121,9 @@ class Bro:
     def move(self, ball):
         if self.opponent and ball.vy < 0:
             if ball.vx > 0:
-                self.x += (ball.x - self.x)/100
+                self.x += (ball.x + self.x)/100
             else:
-                self.x += (ball.x - (self.x + player_size))/100
+                self.x += (ball.x + (self.x + player_size))/100
         
         if not self.opponent and ball.vy > 0:
             if ball.vx < 0:
